@@ -14,6 +14,9 @@
 #include "core_workload.h"
 #include "utils.h"
 
+extern uint64_t ops_cnt[ycsbc::Operation::READMODIFYWRITE + 1] ;    //操作个数
+extern uint64_t ops_time[ycsbc::Operation::READMODIFYWRITE + 1] ;   //微秒
+
 namespace ycsbc {
 
 class Client {
@@ -46,21 +49,33 @@ inline bool Client::DoInsert() {
 
 inline bool Client::DoTransaction() {
   int status = -1;
+  uint64_t start_time = get_now_micros();
+
   switch (workload_.NextOperation()) {
     case READ:
       status = TransactionRead();
+      ops_time[READ] += (get_now_micros() - start_time );
+      ops_cnt[READ]++;
       break;
     case UPDATE:
       status = TransactionUpdate();
+      ops_time[UPDATE] += (get_now_micros() - start_time );
+      ops_cnt[UPDATE]++;
       break;
     case INSERT:
       status = TransactionInsert();
+      ops_time[INSERT] += (get_now_micros() - start_time );
+      ops_cnt[INSERT]++;
       break;
     case SCAN:
       status = TransactionScan();
+      ops_time[SCAN] += (get_now_micros() - start_time );
+      ops_cnt[SCAN]++;
       break;
     case READMODIFYWRITE:
       status = TransactionReadModifyWrite();
+      ops_time[READMODIFYWRITE] += (get_now_micros() - start_time );
+      ops_cnt[READMODIFYWRITE]++;
       break;
     default:
       throw utils::Exception("Operation request is not recognized!");

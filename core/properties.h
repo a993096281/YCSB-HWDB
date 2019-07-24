@@ -26,6 +26,7 @@ class Properties {
 
   void SetProperty(const std::string &key, const std::string &value);
   bool Load(std::ifstream &input);
+  std::string DebugString();
  private:
   std::map<std::string, std::string> properties_;
 };
@@ -63,6 +64,13 @@ inline bool Properties::Load(std::ifstream &input) {
     SetProperty(Trim(line.substr(0, pos)), Trim(line.substr(pos + 1)));
   }
   return true;
+}
+inline std::string Properties::DebugString() {
+  std::string str;
+  for( auto it : properties_) {
+    str.append(it.first).append(":").append(it.second).append("\n");
+  }
+  return str;
 }
 
 } // utils

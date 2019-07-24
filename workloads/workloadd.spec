@@ -10,6 +10,8 @@
 # scattered around the keyspace if they are keyed by userid.timestamp. A workload
 # which orders items purely by time, and demands the latest, is very different than 
 # workload here (which we believe is more typical of how people build systems.)
+fieldcount=1
+fieldlength=4096
 
 recordcount=100000
 operationcount=100000
