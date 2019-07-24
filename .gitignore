@@ -42,3 +42,4 @@ redis/sample
 ycsbc
 
 NVM_LOG
+compaction.csv

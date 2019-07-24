@@ -17,7 +17,13 @@ namespace ycsbc {
         leveldb::Options options;
         SetOptions(&options, props);
 
-        leveldb::Status s = leveldb::DB::Open(options,dbfilename,&db_);
+#ifndef NOVELSM
+        leveldb::Status s = leveldb::DB::Open(options, dbfilename, &db_);
+
+#else   //novelsm
+        std::string db_mem = "/pmem/nvm";
+        leveldb::Status s = leveldb::DB::Open(options,dbfilename, db_mem, &db_);  //novelsm
+#endif
         if(!s.ok()){
             cerr<<"Can't open leveldb "<<dbfilename<<" "<<s.ToString()<<endl;
             exit(0);
@@ -36,6 +42,10 @@ namespace ycsbc {
         if ( dboption == 1) {  //Novelsm options
 #ifdef NOVELSM 
             printf("set Novelsm options!\n");
+            //options->db_mem = "/pmem/nvm";
+            options->write_buffer_size = 64ul * 1024 * 1024;
+            options->nvm_buffer_size = 4096ul * 1024 * 1024;
+            options->num_levels = 2;
             // /options->cnsdl = 0;
 #endif
         }
