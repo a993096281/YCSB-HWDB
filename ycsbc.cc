@@ -287,5 +287,5 @@ void PrintInfo(utils::Properties &props) {
   printf("---- dbname:%s  dbpath:%s ----\n", props["dbname"].c_str(), props["dbpath"].c_str());
   printf("%s", props.DebugString().c_str());
   printf("----------------------------------------\n");
-
+  fflush(stdout);
 }

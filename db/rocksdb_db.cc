@@ -37,8 +37,11 @@ namespace ycsbc {
 
         if ( dboption == 1) {  //RocksDB-L0-NVM: L0 have file path 
 #ifdef ROCKSDB_L0_NVM 
-            printf("ok!\n");
-            // /options->cnsdl = 0;
+            printf("set Rocksdb_L0_NVM options!\n");
+            options->level0_file_num_compaction_trigger = 4;
+            options->level0_slowdown_writes_trigger = 112;     
+            options->level0_stop_writes_trigger = 128;
+            options->level0_file_path = "/pmem/nvm";
 #endif
         }
         else if ( dboption == 2 ) { //Matrixkv: 
