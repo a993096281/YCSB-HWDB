@@ -17,7 +17,7 @@ if [ -n "$dbpath" ];then
     rm -f $dbpath/*
 fi
 
-cmd="./ycsbc -db rocksdb -dbpath $dbpath -threads 1 -P $load -load true -dboption 1 -dbstatistics true >>out.out 2>&1 "
+cmd="./ycsbc -db rocksdb -dbpath $dbpath -threads 1 -P $load -load true -dboption 1 -dbstatistics true -dbwaitforbalance true >>out.out 2>&1 "
 echo $cmd >out.out
 echo $cmd
 eval $cmd
@@ -27,7 +27,7 @@ fi
 
 for file_name in $workloads; do
   CLEAN_CACHE
-  cmd="./ycsbc -db rocksdb -dbpath $dbpath -threads 1 -P $file_name -run true -dboption 1 -dbstatistics true >>out.out 2>&1 "
+  cmd="./ycsbc -db rocksdb -dbpath $dbpath -threads 1 -P $file_name -run true -dboption 1 -dbstatistics true -dbwaitforbalance true >>out.out 2>&1 "
   echo $cmd >>out.out
   echo $cmd
   eval $cmd

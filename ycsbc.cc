@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <future>
+#include <unistd.h>
 #include "core/utils.h"
 #include "core/timer.h"
 #include "core/client.h"
@@ -75,6 +76,7 @@ int main( const int argc, const char *argv[]) {
   const bool run = utils::StrToBool(props.GetProperty("run","false"));
   const int num_threads = stoi(props.GetProperty("threadcount", "1"));
   const bool print_stats = utils::StrToBool(props["dbstatistics"]);
+  const bool wait_for_balance = utils::StrToBool(props["dbwaitforbalance"]);
 
   vector<future<int>> actual_ops;
   int total_ops = 0;
@@ -138,6 +140,18 @@ int main( const int argc, const char *argv[]) {
     printf("********************************\n");
   }
   if ( print_stats ) {
+    printf("-------------- db statistics --------------\n");
+    db->PrintStats();
+    printf("-------------------------------------------\n");
+  }
+  if ( wait_for_balance ) {
+    uint64_t sleep_time = 0;
+    while(!db->HaveBalancedDistribution()){
+      sleep(10);
+      sleep_time += 10;
+    }
+    printf("Wait balance:%lu s\n",sleep_time);
+
     printf("-------------- db statistics --------------\n");
     db->PrintStats();
     printf("-------------------------------------------\n");
@@ -230,6 +244,14 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
       }
       props.SetProperty("dbstatistics",argv[argindex]);
       argindex++;
+    } else if(strcmp(argv[argindex],"-dbwaitforbalance")==0){
+      argindex++;
+      if(argindex >= argc){
+        UsageMessage(argv[0]);
+        exit(0);
+      }
+      props.SetProperty("dbwaitforbalance",argv[argindex]);
+      argindex++;
     } else if (strcmp(argv[argindex], "-P") == 0) {
       argindex++;
       if (argindex >= argc) {
@@ -281,6 +303,7 @@ void Init(utils::Properties &props){
   props.SetProperty("threadcount","1");
   props.SetProperty("dboption","0");
   props.SetProperty("dbstatistics","false");
+  props.SetProperty("dbwaitforbalance","false");
 }
 
 void PrintInfo(utils::Properties &props) {

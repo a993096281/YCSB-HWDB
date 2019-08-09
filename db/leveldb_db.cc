@@ -131,6 +131,10 @@ namespace ycsbc {
         cout<<stats<<endl;
     }
 
+    bool LevelDB::HaveBalancedDistribution() {
+        return db_->HaveBalancedDistribution();
+    }
+
     LevelDB::~LevelDB() {
         delete db_;
     }

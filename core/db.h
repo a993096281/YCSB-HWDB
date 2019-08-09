@@ -90,6 +90,8 @@ class DB {
   ///
   virtual int Delete(const std::string &table, const std::string &key) = 0;
 
+  virtual bool HaveBalancedDistribution() { return true;};
+
   virtual void PrintStats() {};
   
   virtual ~DB() { }

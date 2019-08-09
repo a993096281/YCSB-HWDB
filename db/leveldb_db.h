@@ -36,6 +36,8 @@ namespace ycsbc {
 
         void PrintStats();
 
+        bool HaveBalancedDistribution();
+
         ~LevelDB();
 
     private:

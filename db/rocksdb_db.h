@@ -37,6 +37,8 @@ namespace ycsbc {
 
         void PrintStats();
 
+        bool HaveBalancedDistribution();
+
 
         ~RocksDB();
 

@@ -138,6 +138,10 @@ namespace ycsbc {
         cout<<stats<<endl;
     }
 
+    bool RocksDB::HaveBalancedDistribution() {
+        return db_->HaveBalancedDistribution();
+    }
+
     RocksDB::~RocksDB() {
         printf("wait delete db\n");
         delete db_;
