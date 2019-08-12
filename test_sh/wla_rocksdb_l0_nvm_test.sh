@@ -3,7 +3,7 @@
 #load="workloads/load80G4kb.spec"
 #load="workloads/test.spec"
 #workloads="workloads/workloada.spec workloads/workloadb.spec workloads/workloadc.spec workloads/workloadd.spec workloads/workloade.spec workloads/workloadf.spec"
-workloads="workloads/20M_workloada.spec"
+workloads="workloads/20M_workloada.spec workloads/20M_workloadb.spec workloads/20M_workloadc.spec workloads/20M_workloadd.spec workloads/1M_workloade.spec workloads/20M_workloadf.spec"
 dbpath="/mnt/ssd/ceshi"
 
 CLEAN_CACHE() {
@@ -17,6 +17,8 @@ CLEAN_CACHE() {
 if [ -n "$dbpath" ];then
     rm -f $dbpath/*
 fi
+
+echo >out.out   #clear out.out
 
 for file_name in $workloads; do
   CLEAN_CACHE

@@ -74,7 +74,7 @@ namespace ycsbc {
         }
         if(s.IsNotFound()){
             noResult++;
-            cerr<<"read not found:"<<noResult<<endl;
+            //cerr<<"read not found:"<<noResult<<endl;
             return DB::kOK;
         }else{
             cerr<<"read error"<<endl;
@@ -133,6 +133,7 @@ namespace ycsbc {
     }
 
     void RocksDB::PrintStats() {
+        cout<<"read not found:"<<noResult<<endl;
         string stats;
         db_->GetProperty("rocksdb.stats",&stats);
         cout<<stats<<endl;
