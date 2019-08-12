@@ -74,7 +74,7 @@ namespace ycsbc {
         }
         if(s.IsNotFound()){
             noResult++;
-            cout<<"read not found:"<<noResult<<endl;
+            cerr<<"read not found:"<<noResult<<endl;
             return DB::kOK;
         }else{
             cerr<<"read error"<<endl;

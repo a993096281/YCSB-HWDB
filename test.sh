@@ -16,3 +16,5 @@ fi
 ./ycsbc -db leveldb -dbpath /home/lzw/ceshi2 -threads 1 -P workloads/workloade.spec -load true -run true 
 
 ./ycsbc -db rocksdb -dbpath /home/lzw/ceshi2 -threads 1 -P workloads/workloade.spec -load true -run true 
+
+./ycsbc -db rocksdb -dbpath /home/lzw/ceshi -threads 1 -P workloads/workloada.spec -run true -dboption 1 -dbstatistics true -dbwaitforbalance true
