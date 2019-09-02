@@ -78,6 +78,8 @@ int main( const int argc, const char *argv[]) {
   const bool print_stats = utils::StrToBool(props["dbstatistics"]);
   const bool wait_for_balance = utils::StrToBool(props["dbwaitforbalance"]);
 
+  string morerun = props["morerun"];
+
   vector<future<int>> actual_ops;
   int total_ops = 0;
   int sum = 0;
@@ -138,6 +140,77 @@ int main( const int argc, const char *argv[]) {
     if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN] );
     if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE] );
     printf("********************************\n");
+  }
+  if( !morerun.empty() ) {
+    vector<string> runfilenames;
+    size_t start=0,index=morerun.find_first_of(':', 0);
+    while(index!=morerun.npos)
+    {
+        if(start!=index)
+            runfilenames.push_back(morerun.substr(start,index-start));
+        start=index+1;
+        index=morerun.find_first_of(':',start);
+    }
+    if(!morerun.substr(start).empty()) {
+      runfilenames.push_back(morerun.substr(start));
+    }
+    for(unsigned int i = 0; i < runfilenames.size(); i++){
+      for(int j = 0; j < ycsbc::Operation::READMODIFYWRITE + 1; j++){
+        ops_cnt[j] = 0;
+        ops_time[j] = 0;
+      }
+
+      ifstream input(runfilenames[i]);
+      try {
+        props.Load(input);
+      } catch (const string &message) {
+        cout << message << endl;
+        exit(0);
+      }
+      input.close();
+      printf("------ run:%s ------\n",runfilenames[i].c_str());
+      PrintInfo(props);
+      // Peforms transactions
+      ycsbc::CoreWorkload wl;
+      wl.Init(props);
+
+      actual_ops.clear();
+      total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
+      uint64_t run_start = get_now_micros();
+      for (int i = 0; i < num_threads; ++i) {
+        actual_ops.emplace_back(async(launch::async,
+            DelegateClient, db, &wl, total_ops / num_threads, false));
+      }
+      assert((int)actual_ops.size() == num_threads);
+      sum = 0;
+      for (auto &n : actual_ops) {
+        assert(n.valid());
+        sum += n.get();
+      }
+      uint64_t run_end = get_now_micros();
+      uint64_t use_time = run_end - run_start;
+
+      printf("********** run result **********\n");
+      printf("all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops\n\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time );
+      if ( ops_cnt[ycsbc::INSERT] )          printf("insert ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT]*1e-6, 1.0 * ops_cnt[ycsbc::INSERT] * 1e6 / ops_time[ycsbc::INSERT] );
+      if ( ops_cnt[ycsbc::READ] )            printf("read ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READ], 1.0 * ops_time[ycsbc::READ]*1e-6, 1.0 * ops_cnt[ycsbc::READ] * 1e6 / ops_time[ycsbc::READ] );
+      if ( ops_cnt[ycsbc::UPDATE] )          printf("update ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE]*1e-6, 1.0 * ops_cnt[ycsbc::UPDATE] * 1e6 / ops_time[ycsbc::UPDATE] );
+      if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN] );
+      if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE] );
+      printf("********************************\n");
+
+      if ( print_stats ) {
+        printf("-------------- db statistics --------------\n");
+        db->PrintStats();
+        printf("-------------------------------------------\n");
+      }
+
+
+    }
+    
+
+
+
   }
   if ( print_stats ) {
     printf("-------------- db statistics --------------\n");
@@ -252,6 +325,14 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
       }
       props.SetProperty("dbwaitforbalance",argv[argindex]);
       argindex++;
+    } else if(strcmp(argv[argindex],"-morerun")==0){
+      argindex++;
+      if(argindex >= argc){
+        UsageMessage(argv[0]);
+        exit(0);
+      }
+      props.SetProperty("morerun",argv[argindex]);
+      argindex++;
     } else if (strcmp(argv[argindex], "-P") == 0) {
       argindex++;
       if (argindex >= argc) {
@@ -304,6 +385,7 @@ void Init(utils::Properties &props){
   props.SetProperty("dboption","0");
   props.SetProperty("dbstatistics","false");
   props.SetProperty("dbwaitforbalance","false");
+  props.SetProperty("morerun","");
 }
 
 void PrintInfo(utils::Properties &props) {

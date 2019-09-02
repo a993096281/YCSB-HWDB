@@ -199,11 +199,30 @@ inline std::string CoreWorkload::NextTransactionKey() {
   return BuildKeyName(key_num);
 }
 
-inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
+/* inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
   return std::string("user").append(std::to_string(key_num));
+} */
+static inline void fillchar8wirhint64(char *key, uint64_t value) {
+        key[0] = ((char)(value >> 56)) & 0xff;
+        key[1] = ((char)(value >> 48)) & 0xff;
+        key[2] = ((char)(value >> 40) )& 0xff;
+        key[3] = ((char)(value >> 32)) & 0xff;
+        key[4] = ((char)(value >> 24)) & 0xff;
+        key[5] = ((char)(value >> 16)) & 0xff;
+        key[6] = ((char)(value >> 8)) & 0xff;
+        key[7] = ((char)value) & 0xff;
+}
+
+inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
+  if (!ordered_inserts_) {
+    key_num = utils::Hash(key_num);
+  }
+  char key[8];
+  fillchar8wirhint64(key, key_num);
+  return std::string(key, 8);
 }
 
 inline std::string CoreWorkload::NextFieldName() {
