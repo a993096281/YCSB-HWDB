@@ -9,7 +9,6 @@ moreworkloads="workloads/workloada.spec:workloads/workloadb.spec:workloads/workl
 #./ycsbc -db scaledkv -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true
 
 
-cmd="./ycsbc -db scaledkv -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true >>out.out 2>&1 "
-echo $cmd >out.out
+cmd="./ycsbc -db scaledkv -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true "
 echo $cmd
 eval $cmd
