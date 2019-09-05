@@ -28,8 +28,8 @@ namespace ycsbc {
     }
 
     void ScaledKV::SetOptions(utils::Properties &props) {
-        path = "/pmem/key";
-        valuepath = "/pmem/value";
+        path = "/pmem0/key";
+        valuepath = "/pmem0/value";
         nvm_size = 100 * (1ULL << 30);
         nvm_value_size = 200 * (1ULL << 30);
         m = 10;
