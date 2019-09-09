@@ -10,16 +10,6 @@
 using namespace std;
 
 namespace ycsbc {
-    static inline void fillchar8wirhint64(char *key, uint64_t value) {
-        key[0] = ((char)(value >> 56)) & 0xff;
-        key[1] = ((char)(value >> 48)) & 0xff;
-        key[2] = ((char)(value >> 40) )& 0xff;
-        key[3] = ((char)(value >> 32)) & 0xff;
-        key[4] = ((char)(value >> 24)) & 0xff;
-        key[5] = ((char)(value >> 16)) & 0xff;
-        key[6] = ((char)(value >> 8)) & 0xff;
-        key[7] = ((char)value) & 0xff;
-    }
     ScaledKV::ScaledKV(const char *dbfilename, utils::Properties &props) :noResult(0){
     
         //set option
