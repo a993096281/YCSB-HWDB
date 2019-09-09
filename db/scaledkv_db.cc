@@ -77,7 +77,10 @@ namespace ycsbc {
     }
 
     int ScaledKV::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        return Insert(table,key,values);
+        string value;
+        value.append(value_size, 'b');
+        db_->Update(key, value);
+        return DB::kOK;
     }
 
     int ScaledKV::Delete(const std::string &table, const std::string &key) {
