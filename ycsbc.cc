@@ -108,7 +108,7 @@ int main( const int argc, const char *argv[]) {
     uint64_t load_end = get_now_micros();
     uint64_t use_time = load_end - load_start;
     printf("********** load result **********\n");
-    printf("loading records:%d  use time:%.3f s  IOPS:%.2f iops\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time );
+    printf("loading records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f us/op)\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time, 1.0 * use_time / sum);
     printf("*********************************\n");
   } 
   if( run ) {
@@ -133,12 +133,12 @@ int main( const int argc, const char *argv[]) {
     uint64_t use_time = run_end - run_start;
 
     printf("********** run result **********\n");
-    printf("all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops\n\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time );
-    if ( ops_cnt[ycsbc::INSERT] )          printf("insert ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT]*1e-6, 1.0 * ops_cnt[ycsbc::INSERT] * 1e6 / ops_time[ycsbc::INSERT] );
-    if ( ops_cnt[ycsbc::READ] )            printf("read ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READ], 1.0 * ops_time[ycsbc::READ]*1e-6, 1.0 * ops_cnt[ycsbc::READ] * 1e6 / ops_time[ycsbc::READ] );
-    if ( ops_cnt[ycsbc::UPDATE] )          printf("update ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE]*1e-6, 1.0 * ops_cnt[ycsbc::UPDATE] * 1e6 / ops_time[ycsbc::UPDATE] );
-    if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN] );
-    if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE] );
+    printf("all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f us/op)\n\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time, 1.0 * use_time / sum);
+    if ( ops_cnt[ycsbc::INSERT] )          printf("insert ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT]*1e-6, 1.0 * ops_cnt[ycsbc::INSERT] * 1e6 / ops_time[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT] / ops_cnt[ycsbc::INSERT]);
+    if ( ops_cnt[ycsbc::READ] )            printf("read ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::READ], 1.0 * ops_time[ycsbc::READ]*1e-6, 1.0 * ops_cnt[ycsbc::READ] * 1e6 / ops_time[ycsbc::READ], 1.0 * ops_time[ycsbc::READ] / ops_cnt[ycsbc::READ]);
+    if ( ops_cnt[ycsbc::UPDATE] )          printf("update ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE]*1e-6, 1.0 * ops_cnt[ycsbc::UPDATE] * 1e6 / ops_time[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE] / ops_cnt[ycsbc::UPDATE]);
+    if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN] / ops_cnt[ycsbc::SCAN]);
+    if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE] / ops_cnt[ycsbc::READMODIFYWRITE]);
     printf("********************************\n");
   }
   if( !morerun.empty() ) {
@@ -191,12 +191,12 @@ int main( const int argc, const char *argv[]) {
       uint64_t use_time = run_end - run_start;
 
       printf("********** run result **********\n");
-      printf("all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops\n\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time );
-      if ( ops_cnt[ycsbc::INSERT] )          printf("insert ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT]*1e-6, 1.0 * ops_cnt[ycsbc::INSERT] * 1e6 / ops_time[ycsbc::INSERT] );
-      if ( ops_cnt[ycsbc::READ] )            printf("read ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READ], 1.0 * ops_time[ycsbc::READ]*1e-6, 1.0 * ops_cnt[ycsbc::READ] * 1e6 / ops_time[ycsbc::READ] );
-      if ( ops_cnt[ycsbc::UPDATE] )          printf("update ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE]*1e-6, 1.0 * ops_cnt[ycsbc::UPDATE] * 1e6 / ops_time[ycsbc::UPDATE] );
-      if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN] );
-      if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE] );
+      printf("all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f us/op)\n\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time, 1.0 * use_time / sum);
+      if ( ops_cnt[ycsbc::INSERT] )          printf("insert ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT]*1e-6, 1.0 * ops_cnt[ycsbc::INSERT] * 1e6 / ops_time[ycsbc::INSERT], 1.0 * ops_time[ycsbc::INSERT] / ops_cnt[ycsbc::INSERT]);
+      if ( ops_cnt[ycsbc::READ] )            printf("read ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::READ], 1.0 * ops_time[ycsbc::READ]*1e-6, 1.0 * ops_cnt[ycsbc::READ] * 1e6 / ops_time[ycsbc::READ], 1.0 * ops_time[ycsbc::READ] / ops_cnt[ycsbc::READ]);
+      if ( ops_cnt[ycsbc::UPDATE] )          printf("update ops:%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE]*1e-6, 1.0 * ops_cnt[ycsbc::UPDATE] * 1e6 / ops_time[ycsbc::UPDATE], 1.0 * ops_time[ycsbc::UPDATE] / ops_cnt[ycsbc::UPDATE]);
+      if ( ops_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN]*1e-6, 1.0 * ops_cnt[ycsbc::SCAN] * 1e6 / ops_time[ycsbc::SCAN], 1.0 * ops_time[ycsbc::SCAN] / ops_cnt[ycsbc::SCAN]);
+      if ( ops_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", ops_cnt[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * ops_cnt[ycsbc::READMODIFYWRITE] * 1e6 / ops_time[ycsbc::READMODIFYWRITE], 1.0 * ops_time[ycsbc::READMODIFYWRITE] / ops_cnt[ycsbc::READMODIFYWRITE]);
       printf("********************************\n");
 
       if ( print_stats ) {
@@ -208,9 +208,6 @@ int main( const int argc, const char *argv[]) {
 
     }
     
-
-
-
   }
   if ( print_stats ) {
     printf("-------------- db statistics --------------\n");

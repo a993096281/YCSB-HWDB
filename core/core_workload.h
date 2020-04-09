@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 #include "db.h"
 #include "properties.h"
 #include "generator.h"
@@ -35,6 +36,9 @@ class CoreWorkload {
   ///
   static const std::string TABLENAME_PROPERTY;
   static const std::string TABLENAME_DEFAULT;
+
+  static const std::string KEY_LENGTH;
+  static const std::string KEY_LENGTH_DEFAULT;
   
   /// 
   /// The name of the property for the number of fields in a record.
@@ -141,6 +145,7 @@ class CoreWorkload {
   
   virtual void BuildValues(std::vector<ycsbc::DB::KVPair> &values);
   virtual void BuildUpdate(std::vector<ycsbc::DB::KVPair> &update);
+  virtual std::string BuildMaxKey();
   
   virtual std::string NextTable() { return table_name_; }
   virtual std::string NextSequenceKey(); /// Used for loading data
@@ -153,13 +158,14 @@ class CoreWorkload {
   bool write_all_fields() const { return write_all_fields_; }
 
   CoreWorkload() :
-      field_count_(0), read_all_fields_(false), write_all_fields_(false),
+      key_length_(16), key_buff_(NULL), field_count_(0), read_all_fields_(false), write_all_fields_(false),
       field_len_generator_(NULL), key_generator_(NULL), key_chooser_(NULL),
       field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3),
       ordered_inserts_(true), record_count_(0) {
   }
   
   virtual ~CoreWorkload() {
+    if (key_buff_) delete []key_buff_;
     if (field_len_generator_) delete field_len_generator_;
     if (key_generator_) delete key_generator_;
     if (key_chooser_) delete key_chooser_;
@@ -172,6 +178,8 @@ class CoreWorkload {
   std::string BuildKeyName(uint64_t key_num);
 
   std::string table_name_;
+  int key_length_;
+  char *key_buff_;
   int field_count_;
   bool read_all_fields_;
   bool write_all_fields_;
@@ -220,10 +228,18 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
-  char key[8];
-  fillchar8wirhint64(key, key_num);
-  return std::string(key, 8);
+
+  snprintf(key_buff_, key_length_ + 1, "%0*lx", key_length_, key_num);
+  //key的前缀以0对齐，长度不超过key_length_，因为snprintf会复制最后字符'\0',所以长度+1；
+
+  return std::string(key_buff_, key_length_);
 }
+
+inline std::string CoreWorkload::BuildMaxKey() {
+  memset(key_buff_, 0xff, key_length_);
+  return std::string(key_buff_, key_length_);
+}
+
 
 inline std::string CoreWorkload::NextFieldName() {
   return std::string("field").append(std::to_string(field_chooser_->Next()));

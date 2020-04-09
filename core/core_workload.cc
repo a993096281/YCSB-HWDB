@@ -21,6 +21,9 @@ using std::string;
 const string CoreWorkload::TABLENAME_PROPERTY = "table";
 const string CoreWorkload::TABLENAME_DEFAULT = "usertable";
 
+const string CoreWorkload::KEY_LENGTH = "keylength";
+const string CoreWorkload::KEY_LENGTH_DEFAULT = "16";
+
 const string CoreWorkload::FIELD_COUNT_PROPERTY = "fieldcount";
 const string CoreWorkload::FIELD_COUNT_DEFAULT = "10";
 
@@ -76,6 +79,10 @@ const string CoreWorkload::OPERATION_COUNT_PROPERTY = "operationcount";
 void CoreWorkload::Init(const utils::Properties &p) {
   table_name_ = p.GetProperty(TABLENAME_PROPERTY,TABLENAME_DEFAULT);
   
+  key_length_ = std::stoi(p.GetProperty(KEY_LENGTH,
+                                         KEY_LENGTH_DEFAULT));
+  key_buff_ = new char[key_length_ + 1];
+
   field_count_ = std::stoi(p.GetProperty(FIELD_COUNT_PROPERTY,
                                          FIELD_COUNT_DEFAULT));
   field_len_generator_ = GetFieldLenGenerator(p);

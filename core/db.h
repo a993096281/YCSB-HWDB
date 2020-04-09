@@ -55,7 +55,7 @@ class DB {
   ///        pairs for one record
   /// @return Zero on success, or a non-zero error code on error.
   ///
-  virtual int Scan(const std::string &table, const std::string &key,
+  virtual int Scan(const std::string &table, const std::string &key, const std::string &max_key,
                    int record_count, const std::vector<std::string> *fields,
                    std::vector<std::vector<KVPair>> &result) = 0;
   ///
@@ -90,7 +90,7 @@ class DB {
   ///
   virtual int Delete(const std::string &table, const std::string &key) = 0;
 
-  virtual bool HaveBalancedDistribution() { return true;};
+  virtual bool HaveBalancedDistribution() { return true; };
 
   virtual void PrintStats() {};
   

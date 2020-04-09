@@ -25,7 +25,7 @@ class HashtableDB : public DB {
   int Read(const std::string &table, const std::string &key,
            const std::vector<std::string> *fields,
            std::vector<KVPair> &result);
-  int Scan(const std::string &table, const std::string &key,
+  int Scan(const std::string &table, const std::string &key, const std::string &max_key,
            int len, const std::vector<std::string> *fields,
            std::vector<std::vector<KVPair>> &result);
   int Update(const std::string &table, const std::string &key,

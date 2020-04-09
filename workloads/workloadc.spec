@@ -5,6 +5,7 @@
 #   Read/update ratio: 100/0
 #   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
 #   Request distribution: zipfian
+keylength=16
 fieldcount=1
 fieldlength=4096
 
