@@ -1,23 +1,26 @@
 # Yahoo! Cloud System Benchmark
-# Workload B: Read mostly workload
-#   Application example: photo tagging; add a tag is an update, but most operations are to read tags
+# Workload C: Read only
+#   Application example: user profile cache, where profiles are constructed elsewhere (e.g., Hadoop)
 #                        
-#   Read/update ratio: 95/5
+#   Read/update ratio: 100/0
 #   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
 #   Request distribution: zipfian
+keylength=16
 fieldcount=1
-fieldlength=4096
+fieldlength=16
 
-recordcount=50000000
-operationcount=50000000
+recordcount=100000000
+operationcount=10000000
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
 
-readproportion=0.95
-updateproportion=0.05
+readproportion=1
+updateproportion=0
 scanproportion=0
 insertproportion=0
 
 requestdistribution=zipfian
+
+
 

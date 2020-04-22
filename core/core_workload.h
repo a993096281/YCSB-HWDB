@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <cmath>
 #include "db.h"
 #include "properties.h"
 #include "generator.h"
@@ -150,6 +151,7 @@ class CoreWorkload {
   virtual std::string NextTable() { return table_name_; }
   virtual std::string NextSequenceKey(); /// Used for loading data
   virtual std::string NextTransactionKey(); /// Used for transactions
+  virtual void NextTransactionScanKey(std::string &start_key, std::string &end_key);
   virtual Operation NextOperation() { return op_chooser_.Next(); }
   virtual std::string NextFieldName();
   virtual size_t NextScanLength() { return scan_len_chooser_->Next(); }
@@ -158,14 +160,13 @@ class CoreWorkload {
   bool write_all_fields() const { return write_all_fields_; }
 
   CoreWorkload() :
-      key_length_(16), key_buff_(NULL), field_count_(0), read_all_fields_(false), write_all_fields_(false),
+      key_length_(16), field_count_(0), read_all_fields_(false), write_all_fields_(false),
       field_len_generator_(NULL), key_generator_(NULL), key_chooser_(NULL),
       field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3),
-      ordered_inserts_(true), record_count_(0) {
+      ordered_inserts_(true), record_count_(0), max_scan_len_(0) {
   }
   
   virtual ~CoreWorkload() {
-    if (key_buff_) delete []key_buff_;
     if (field_len_generator_) delete field_len_generator_;
     if (key_generator_) delete key_generator_;
     if (key_chooser_) delete key_chooser_;
@@ -179,7 +180,6 @@ class CoreWorkload {
 
   std::string table_name_;
   int key_length_;
-  char *key_buff_;
   int field_count_;
   bool read_all_fields_;
   bool write_all_fields_;
@@ -192,6 +192,7 @@ class CoreWorkload {
   CounterGenerator insert_key_sequence_;
   bool ordered_inserts_;
   size_t record_count_;
+  int max_scan_len_;
 };
 
 inline std::string CoreWorkload::NextSequenceKey() {
@@ -205,6 +206,19 @@ inline std::string CoreWorkload::NextTransactionKey() {
     key_num = key_chooser_->Next();
   } while (key_num > insert_key_sequence_.Last());
   return BuildKeyName(key_num);
+}
+
+inline void CoreWorkload::NextTransactionScanKey(std::string &start_key, std::string &end_key) {
+  uint64_t key_num;
+  do {
+    key_num = key_chooser_->Next();
+  } while (key_num > insert_key_sequence_.Last());
+  start_key = BuildKeyName(key_num);
+  //end_key = BuildKeyName(key_num + scan_interval_);
+  end_key = start_key;
+  int index = log10(record_count_ / max_scan_len_);
+  index = (index - 2) > 0 ? index - 2 : 0; //不能满打满算，截止范围扩大一位
+  end_key[index]++; //截止范围在第四个字符++，这个取合适值就行
 }
 
 /* inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
@@ -228,16 +242,16 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
-
-  snprintf(key_buff_, key_length_ + 1, "%0*lx", key_length_, key_num);
+  char key_buff[key_length_ + 1];
+  snprintf(key_buff, key_length_ + 1, "%0*lx", key_length_, key_num);
   //key的前缀以0对齐，长度不超过key_length_，因为snprintf会复制最后字符'\0',所以长度+1；
-
-  return std::string(key_buff_, key_length_);
+  return std::string(key_buff, key_length_);
 }
 
 inline std::string CoreWorkload::BuildMaxKey() {
-  memset(key_buff_, 0xff, key_length_);
-  return std::string(key_buff_, key_length_);
+  char key_buff[key_length_ + 1];
+  memset(key_buff, 0xff, key_length_);
+  return std::string(key_buff, key_length_);
 }
 
 

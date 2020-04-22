@@ -10,11 +10,12 @@
 # follow that the data is inserted in order. For example, posts for thread 342 may not be inserted contiguously, but
 # instead interspersed with posts from lots of other threads. The way the YCSB client works is that it will pick a start
 # key, and then request a number of records; this works fine even for hashed insertion.
+keylength=16
 fieldcount=1
-fieldlength=4096
+fieldlength=16
 
-recordcount=1000000
-operationcount=1000000
+recordcount=100000000
+operationcount=10000000
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true

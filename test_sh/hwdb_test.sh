@@ -9,6 +9,8 @@ moreworkloads="workloads/workloada.spec:workloads/workloadb.spec:workloads/workl
 #./ycsbc -db hwdb -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true
 
 
-cmd="./ycsbc -db hwdb -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true "
+cmd="./ycsbc -db hwdb -dbpath $dbpath -threads 4 -P $workload -load true -morerun $moreworkloads -dbstatistics true "
+#cmd="./ycsbc -db basic -dbpath $dbpath -threads 1 -P $workload -load true -morerun $moreworkloads -dbstatistics true "
+
 echo $cmd
 eval $cmd

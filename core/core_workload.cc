@@ -81,7 +81,6 @@ void CoreWorkload::Init(const utils::Properties &p) {
   
   key_length_ = std::stoi(p.GetProperty(KEY_LENGTH,
                                          KEY_LENGTH_DEFAULT));
-  key_buff_ = new char[key_length_ + 1];
 
   field_count_ = std::stoi(p.GetProperty(FIELD_COUNT_PROPERTY,
                                          FIELD_COUNT_DEFAULT));
@@ -101,8 +100,9 @@ void CoreWorkload::Init(const utils::Properties &p) {
   record_count_ = std::stoi(p.GetProperty(RECORD_COUNT_PROPERTY));
   std::string request_dist = p.GetProperty(REQUEST_DISTRIBUTION_PROPERTY,
                                            REQUEST_DISTRIBUTION_DEFAULT);
-  int max_scan_len = std::stoi(p.GetProperty(MAX_SCAN_LENGTH_PROPERTY,
+  max_scan_len_ = std::stoi(p.GetProperty(MAX_SCAN_LENGTH_PROPERTY,
                                              MAX_SCAN_LENGTH_DEFAULT));
+  
   std::string scan_len_dist = p.GetProperty(SCAN_LENGTH_DISTRIBUTION_PROPERTY,
                                             SCAN_LENGTH_DISTRIBUTION_DEFAULT);
   int insert_start = std::stoi(p.GetProperty(INSERT_START_PROPERTY,
@@ -162,9 +162,9 @@ void CoreWorkload::Init(const utils::Properties &p) {
   field_chooser_ = new UniformGenerator(0, field_count_ - 1);
   
   if (scan_len_dist == "uniform") {
-    scan_len_chooser_ = new UniformGenerator(1, max_scan_len);
+    scan_len_chooser_ = new UniformGenerator(1, max_scan_len_);
   } else if (scan_len_dist == "zipfian") {
-    scan_len_chooser_ = new ZipfianGenerator(1, max_scan_len);
+    scan_len_chooser_ = new ZipfianGenerator(1, max_scan_len_);
   } else {
     throw utils::Exception("Distribution not allowed for scan length: " +
         scan_len_dist);

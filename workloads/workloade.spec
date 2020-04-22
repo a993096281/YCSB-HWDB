@@ -12,7 +12,7 @@
 # key, and then request a number of records; this works fine even for hashed insertion.
 keylength=16
 fieldcount=1
-fieldlength=4096
+fieldlength=16
 
 recordcount=100000
 operationcount=100000

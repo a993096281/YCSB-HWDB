@@ -12,7 +12,7 @@
 # workload here (which we believe is more typical of how people build systems.)
 keylength=16
 fieldcount=1
-fieldlength=4096
+fieldlength=16
 
 recordcount=100000
 operationcount=100000

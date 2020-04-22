@@ -79,10 +79,12 @@ namespace ycsbc {
         Data_S find_key(key);
         char *value = nullptr;
         int s = db_->interface.Getkv(db_->db, find_key.raw_data(), &value);
+        //printf("read:key:%lu-%s\n",key.size(),key.c_str());
         if(s == 0) {
             if(value == nullptr){
                 noResult++;
                 //cerr<<"read not found:"<<noResult<<endl;
+                //printf("read not find:key:%lu-%s\n",key.size(),key.c_str());
                 return DB::kOK;
             }
             //printf("value:%lu\n",value.size());
@@ -104,6 +106,7 @@ namespace ycsbc {
                       std::vector<std::vector<KVPair>> &result) {
         void *iter = nullptr;
         int s = db_->interface.RangekvGet(db_->db, Data_S(key).raw_data(), Data_S(max_key).raw_data(), &iter);
+        //printf("scan:key:%lu-%s max_key:%lu-%s\n",key.size(), key.c_str(), max_key.size(), max_key.c_str());
         if(s != 0){
             cerr<<"scan error"<<endl;
             exit(0);
@@ -111,7 +114,8 @@ namespace ycsbc {
         char *val;
         char *k;
         bool ok = true;
-        for(int i=0;i < len && ok; i++){
+        int i;
+        for(i=0;i < len && ok; i++){
             k = NULL;
             val = NULL;
             s = db_->interface.GetNext(iter, &k, &val);
@@ -124,6 +128,7 @@ namespace ycsbc {
             }
             
         } 
+        //printf("scan find:i:%d len:%d\n", i , len);
         db_->interface.DeleteIterator(&iter);
         return DB::kOK;
     }
@@ -138,6 +143,7 @@ namespace ycsbc {
             printf("put field:key:%lu-%s value:%lu-%s\n",kv.first.size(),kv.first.data(),kv.second.size(),kv.second.data());
         } */
         s = db_->interface.Putkv(db_->db, Data_S(key).raw_data(), Data_S(value).raw_data());
+        //printf("put:key:%lu-%s\n",key.size(),key.c_str());
         if(s != 0){
             cerr<<"insert error\n"<<endl;
             exit(0);
@@ -153,6 +159,7 @@ namespace ycsbc {
     int HWDB::Delete(const std::string &table, const std::string &key) {
         int s;
         s = db_->interface.Delkv(db_->db, Data_S(key).raw_data());
+        //printf("delete:key:%lu-%s\n",key.size(),key.c_str());
         if(s != 0){
             cerr<<"Delete error\n"<<endl;
             exit(0);
@@ -162,7 +169,8 @@ namespace ycsbc {
 
     void HWDB::PrintStats() {
         if(noResult) cout<<"read not found:"<<noResult<<endl;
-        char stats[300];
+        char stats[1024];
+        memset(stats, 0, 1024);
         db_->interface.PrintStats(db_->db, (char *)&stats);
         cout<<stats<<endl;
     }
