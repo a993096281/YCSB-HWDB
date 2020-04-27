@@ -68,8 +68,24 @@ namespace ycsbc {
         //
         SetDefaultHwdbConfig(&config_);
         strcpy(config_.fs_path, dbfilename);
-        config_.kLogMaxWriteSize = 4 * 1024 * 1024;  //
-        config_.kMaxPthreadNum = 16;
+        config_.kLogMaxWriteSize = 32 * 1024 * 1024;  //
+        config_.kMaxPthreadNum = 8;
+        config_.kPthreadDoFlushJobNum = 5;
+        
+        uint64_t nums = stoi(props.GetProperty(CoreWorkload::RECORD_COUNT_PROPERTY));
+        uint32_t key_len = stoi(props.GetProperty(CoreWorkload::KEY_LENGTH));
+        uint32_t value_len = stoi(props.GetProperty(CoreWorkload::FIELD_LENGTH_PROPERTY));
+
+        uint64_t inner_cache = nums * (key_len + value_len) * 2 / 10 / 512;
+        uint64_t leaf_cache = nums * (key_len + value_len) * 1 / 10 / 4096;
+        if(inner_cache < 4096) inner_cache = 4096;
+        if(leaf_cache < 1024) leaf_cache = 1024;
+
+        config_.kInnerCacheBucketSize = inner_cache;
+        config_.kInnerCacheBits = 12; //4096
+
+        config_.kLeafCacheBucketSize = leaf_cache;
+        config_.kLeafCacheBits = 10;  //1024
     
     }
 

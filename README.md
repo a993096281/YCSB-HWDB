@@ -1,31 +1,35 @@
-# YCSB-C
+# YCSB-HWDB
 
 Yahoo! Cloud Serving Benchmark in C++, a C++ version of YCSB (https://github.com/brianfrankcooper/YCSB/wiki)
 
-## Quick Start
+YCSB的c++版本，这个版本暂时支持HWDB(个人开发)、rocksdb。
 
-To build YCSB-C on Ubuntu, for example:
+## 代码解析
 
-```
-$ sudo apt-get install libtbb-dev
-$ make
-```
+建议看懂ycsbc.cc，这个文件主要是运行测试基础，包括一些参数；
 
-As the driver for Redis is linked by default, change the runtime library path
-to include the hiredis library by:
+数据库接口在``db/``目录下，例如rocksdb的接口在db/rocksdb_db.cc里面；
+
+新加数据库接口需要增加db/*文件和修改db/db_factory.cc文件。
+
+## 编译
+
+别的数据库的链接库可以放到``/usr/local/lib``目录下，头文件放到``/usr/local/include``下面，如果找不到，则添加环境变量：
+
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 ```
 
-Run Workload A with a [TBB](https://www.threadingbuildingblocks.org)-based
-implementation of the database, for example:
+编译：
 ```
-./ycsbc -db tbb_rand -threads 4 -P workloads/workloada.spec
+make               #编译所有数据库
+或 make hwdb       #只编译hwdb数据库
+或 make rocksdb    #只编译rocksdb数据库
 ```
-Also reference run.sh and run\_redis.sh for the command line. See help by
-invoking `./ycsbc` without any arguments.
 
-Note that we do not have load and run commands as the original YCSB. Specify
-how many records to load by the recordcount property. Reference properties
-files in the workloads dir.
+## 运行
+运行代码可参考目录``test_sh/``下的文件，参数可看ycsbc.cc文件。
+
+## 建议
+建议看懂代码，可以自己添加别的数据库，然后进行测试。
 

@@ -1,25 +1,47 @@
 
 CC=g++
-CFLAGS= -std=c++11 -g -Wall -I./ 
-LDFLAGS= -lpthread -lhwdb
-SUBDIRS= core db 
-SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
-OBJECTS=$(SUBSRCS:.cc=.o)
+CXXFLAGS= -std=c++11 -g -Wall -I./ 
+LDFLAGS= -lpthread 
+
+LIB_SOURCES= \
+		core/core_workload.cc  \
+		db/db_factory.cc   \
+		db/hashtable_db.cc  \
+
+##HWDB
+HWDB_SOURCES= db/hwdb_db.cc
+HWDB_LIBRARY= -lhwdb
+HWDB_DEFS= -DYCSB_HWDB
+HWDB_OBJECTS=$(HWDB_SOURCES:.cc=.o)
+##
+
+##rocksdb
+ROCKSDB_SOURCES= db/rocksdb_db.cc
+ROCKSDB_LIBRARY= -lrocksdb -lz
+ROCKSDB_DEFS= -DYCSB_ROCKSDB
+ROCKSDB_OBJECTS=$(ROCKSDB_SOURCES:.cc=.o)
+##
+
+
+OBJECTS=$(LIB_SOURCES:.cc=.o)
 EXEC=ycsbc
 
-all: $(SUBDIRS) $(EXEC)
+ONLY_HWDB_SOURCES=$(LIB_SOURCES) $(HWDB_SOURCES)
+ONLY_ROCKSDB_SOURCES=$(LIB_SOURCES) $(ROCKSDB_SOURCES)
+ALL_SOURCES=$(LIB_SOURCES) $(HWDB_SOURCES) $(ROCKSDB_SOURCES)
 
-$(SUBDIRS):
-	$(MAKE) -C $@
+all: clean
+	$(CC) $(CXXFLAGS) $(HWDB_DEFS) $(ROCKSDB_DEFS) ycsbc.cc $(ALL_SOURCES) -o $(EXEC) $(LDFLAGS) $(HWDB_LIBRARY) $(ROCKSDB_LIBRARY)
 
-$(EXEC): $(wildcard *.cc) $(OBJECTS)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+hwdb: clean
+	$(CC) $(CXXFLAGS) $(HWDB_DEFS) ycsbc.cc $(ONLY_HWDB_SOURCES) -o $(EXEC) $(LDFLAGS) $(HWDB_LIBRARY)
+
+rocksdb: clean
+	$(CC) $(CXXFLAGS) $(ROCKSDB_DEFS) ycsbc.cc $(ONLY_ROCKSDB_SOURCES) -o $(EXEC) $(LDFLAGS) $(ROCKSDB_LIBRARY)
+
 
 clean:
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir $@; \
-	done
-	$(RM) $(EXEC)
+	rm -f $(EXEC) 
 
-.PHONY: $(SUBDIRS) $(EXEC)
+.PHONY: clean rocksdb hwdb
 
