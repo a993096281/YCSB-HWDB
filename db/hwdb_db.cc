@@ -197,8 +197,8 @@ namespace ycsbc {
 
     void HWDB::PrintStats() {
         if(noResult) cout<<"read not found:"<<noResult<<endl;
-        char stats[1024];
-        memset(stats, 0, 1024);
+        char stats[4096];
+        memset(stats, 0, 4096);
         db_->interface.PrintStats(db_->db, (char *)&stats);
         cout<<stats<<endl;
     }
