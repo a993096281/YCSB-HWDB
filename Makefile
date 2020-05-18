@@ -17,7 +17,7 @@ HWDB_OBJECTS=$(HWDB_SOURCES:.cc=.o)
 
 ##rocksdb
 ROCKSDB_SOURCES= db/rocksdb_db.cc
-ROCKSDB_LIBRARY= -lrocksdb -lz
+ROCKSDB_LIBRARY= -lrocksdb -lz    ### -lz -lzstd -llz4 -lsnappy是rocksdb编译的时候如果检测到这些压缩链接库会使用，所以这里也要添加
 ROCKSDB_DEFS= -DYCSB_ROCKSDB
 ROCKSDB_OBJECTS=$(ROCKSDB_SOURCES:.cc=.o)
 ##

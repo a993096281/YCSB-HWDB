@@ -62,6 +62,8 @@ namespace ycsbc {
             cerr<<"Can't open hwdb "<<dbfilename<<" "<<s<<endl;
             exit(0);
         }
+
+        PrintConfig(&config_);
     }
 
     void HWDB::SetOptions(const char *dbfilename, utils::Properties &props) {
@@ -76,8 +78,16 @@ namespace ycsbc {
         uint32_t key_len = stoi(props.GetProperty(CoreWorkload::KEY_LENGTH));
         uint32_t value_len = stoi(props.GetProperty(CoreWorkload::FIELD_LENGTH_PROPERTY));
 
-        uint64_t inner_cache = nums * (key_len + value_len) * 2 / 10 / 512;
-        uint64_t leaf_cache = nums * (key_len + value_len) * 1 / 10 / 4096;
+        uint32_t inner_size = 512;
+        uint32_t leaf_size = 4096;
+
+        config_.kInnerBlockSize = inner_size;
+        config_.kInnerCacheItemSize = inner_size;
+        config_.kLeafBlockSize = leaf_size;
+        config_.kLeafCacheItemSize = leaf_size;
+
+        uint64_t inner_cache = nums * (key_len + value_len) * 5 / 100 / inner_size;
+        uint64_t leaf_cache = nums * (key_len + value_len) * 5 / 100 / leaf_size;
         if(inner_cache < 4096) inner_cache = 4096;
         if(leaf_cache < 1024) leaf_cache = 1024;
 
@@ -86,6 +96,8 @@ namespace ycsbc {
 
         config_.kLeafCacheBucketSize = leaf_cache;
         config_.kLeafCacheBits = 10;  //1024
+
+        config_.kLogDirectWrite = 0;
     
     }
 

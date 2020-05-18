@@ -9,7 +9,11 @@
 #include <iostream>
 #include <string>
 #include "core/properties.h"
+#include "core/core_workload.h"
+
 #include <rocksdb/db.h>
+#include <rocksdb/cache.h>
+#include <rocksdb/table.h>
 
 using std::cout;
 using std::endl;
@@ -42,6 +46,8 @@ namespace ycsbc {
     private:
         rocksdb::DB *db_;
         unsigned noResult;
+        std::shared_ptr<rocksdb::Cache> cache_;
+        std::shared_ptr<rocksdb::Statistics> dbstats_;
 
         void SetOptions(rocksdb::Options *options, utils::Properties &props);
         void SerializeValues(std::vector<KVPair> &kvs, std::string &value);

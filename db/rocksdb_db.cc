@@ -10,8 +10,8 @@
 using namespace std;
 
 namespace ycsbc {
-    RocksDB::RocksDB(const char *dbfilename, utils::Properties &props) :noResult(0){
-    
+    RocksDB::RocksDB(const char *dbfilename, utils::Properties &props) :noResult(0), cache_(nullptr), dbstats_(nullptr){
+        
         //set option
         rocksdb::Options options;
         SetOptions(&options, props);
@@ -40,7 +40,28 @@ namespace ycsbc {
         options->level0_file_num_compaction_trigger = 4;
         options->level0_slowdown_writes_trigger = 8;     
         options->level0_stop_writes_trigger = 12;
-            
+
+        options->use_direct_reads = true;
+        options->use_direct_io_for_flush_and_compaction = true;
+
+        uint64_t nums = stoi(props.GetProperty(CoreWorkload::RECORD_COUNT_PROPERTY));
+        uint32_t key_len = stoi(props.GetProperty(CoreWorkload::KEY_LENGTH));
+        uint32_t value_len = stoi(props.GetProperty(CoreWorkload::FIELD_LENGTH_PROPERTY));
+        uint32_t cache_size = nums * (key_len + value_len) * 10 / 100; //10%
+        if(cache_size < 8 << 20){   //不小于8MB；
+            cache_size = 8 << 20;
+        }
+        cache_ = rocksdb::NewLRUCache(cache_size);
+        if(options->table_factory->GetOptions() != nullptr){
+            rocksdb::BlockBasedTableOptions* table_options = reinterpret_cast<rocksdb::BlockBasedTableOptions*>(options->table_factory->GetOptions());
+            table_options->block_cache = cache_;
+        }
+
+        bool statistics = utils::StrToBool(props["dbstatistics"]);
+        if(statistics){
+            dbstats_ = rocksdb::CreateDBStatistics();
+            options->statistics = dbstats_;
+        }
     }
 
 
@@ -122,10 +143,18 @@ namespace ycsbc {
         string stats;
         db_->GetProperty("rocksdb.stats",&stats);
         cout<<stats<<endl;
+
+        if (dbstats_.get() != nullptr) {
+            fprintf(stdout, "STATISTICS:\n%s\n", dbstats_->ToString().c_str());
+        }
     }
 
     RocksDB::~RocksDB() {
         delete db_;
+        if (cache_.get() != nullptr) {
+            // this will leak, but we're shutting down so nobody cares
+            cache_->DisownData();
+        }
     }
 
     void RocksDB::SerializeValues(std::vector<KVPair> &kvs, std::string &value) {
