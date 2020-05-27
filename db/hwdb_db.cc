@@ -88,15 +88,16 @@ namespace ycsbc {
 
         uint64_t inner_cache = nums * (key_len + value_len) * 5 / 100 / inner_size;
         uint64_t leaf_cache = nums * (key_len + value_len) * 5 / 100 / leaf_size;
-        if(inner_cache < 4096) inner_cache = 4096;
-        if(leaf_cache < 1024) leaf_cache = 1024;
+        if(inner_cache < 4096) inner_cache = 4 * 4096;
+        if(leaf_cache < 1024) leaf_cache = 16 * 1024;
 
         config_.kInnerCacheBucketSize = inner_cache;
-        config_.kInnerCacheBits = 12; //4096
+        config_.kInnerCacheBits = 8; //
 
         config_.kLeafCacheBucketSize = leaf_cache;
-        config_.kLeafCacheBits = 10;  //1024
+        config_.kLeafCacheBits = 8;  //
 
+        config_.kPlogClientType = 3;
         config_.kLogDirectWrite = 0;
     
     }
@@ -171,7 +172,7 @@ namespace ycsbc {
             printf("put field:key:%lu-%s value:%lu-%s\n",kv.first.size(),kv.first.data(),kv.second.size(),kv.second.data());
         } */
         s = db_->interface.Putkv(db_->db, Data_S(key).raw_data(), Data_S(value).raw_data());
-        //printf("put:key:%lu-%s\n",key.size(),key.c_str());
+        printf("put:key:%lu-%s\n",key.size(),key.c_str());
         if(s != 0){
             cerr<<"insert error\n"<<endl;
             exit(0);

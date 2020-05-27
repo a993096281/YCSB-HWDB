@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace ycsbc {
-    RocksDB::RocksDB(const char *dbfilename, utils::Properties &props) :noResult(0), cache_(nullptr), dbstats_(nullptr){
+    RocksDB::RocksDB(const char *dbfilename, utils::Properties &props) :noResult(0), cache_(nullptr), dbstats_(nullptr), write_sync_(false){
         
         //set option
         rocksdb::Options options;
@@ -55,6 +55,7 @@ namespace ycsbc {
         if(options->table_factory->GetOptions() != nullptr){
             rocksdb::BlockBasedTableOptions* table_options = reinterpret_cast<rocksdb::BlockBasedTableOptions*>(options->table_factory->GetOptions());
             table_options->block_cache = cache_;
+            table_options->filter_policy.reset(rocksdb::NewBloomFilterPolicy(10,false));
         }
 
         bool statistics = utils::StrToBool(props["dbstatistics"]);
@@ -62,6 +63,8 @@ namespace ycsbc {
             dbstats_ = rocksdb::CreateDBStatistics();
             options->statistics = dbstats_;
         }
+
+        write_sync_ = false;    //主要是写日志，
     }
 
 
@@ -115,7 +118,11 @@ namespace ycsbc {
         for( auto kv : values) {
             printf("put field:key:%lu-%s value:%lu-%s\n",kv.first.size(),kv.first.data(),kv.second.size(),kv.second.data());
         } */
-        s = db_->Put(rocksdb::WriteOptions(), key, value);
+        rocksdb::WriteOptions write_options = rocksdb::WriteOptions();
+        if(write_sync_) {
+            write_options.sync = true;
+        }
+        s = db_->Put(write_options, key, value);
         if(!s.ok()){
             cerr<<"insert error\n"<<endl;
             exit(0);
@@ -130,7 +137,11 @@ namespace ycsbc {
 
     int RocksDB::Delete(const std::string &table, const std::string &key) {
         rocksdb::Status s;
-        s = db_->Delete(rocksdb::WriteOptions(),key);
+        rocksdb::WriteOptions write_options = rocksdb::WriteOptions();
+        if(write_sync_) {
+            write_options.sync = true;
+        }
+        s = db_->Delete(write_options,key);
         if(!s.ok()){
             cerr<<"Delete error\n"<<endl;
             exit(0);

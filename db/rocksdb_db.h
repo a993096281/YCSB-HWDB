@@ -14,6 +14,8 @@
 #include <rocksdb/db.h>
 #include <rocksdb/cache.h>
 #include <rocksdb/table.h>
+#include <rocksdb/filter_policy.h>
+#include <rocksdb/options.h>
 
 using std::cout;
 using std::endl;
@@ -48,6 +50,7 @@ namespace ycsbc {
         unsigned noResult;
         std::shared_ptr<rocksdb::Cache> cache_;
         std::shared_ptr<rocksdb::Statistics> dbstats_;
+        bool write_sync_;
 
         void SetOptions(rocksdb::Options *options, utils::Properties &props);
         void SerializeValues(std::vector<KVPair> &kvs, std::string &value);

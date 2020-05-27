@@ -111,6 +111,13 @@ int main( const int argc, const char *argv[]) {
     printf("********** load result **********\n");
     printf("loading records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f us/op)\n", sum, 1.0 * use_time*1e-6, 1.0 * sum * 1e6 / use_time, 1.0 * use_time / sum);
     printf("*********************************\n");
+
+    if ( print_stats ) {
+      printf("-------------- db statistics --------------\n");
+      db->PrintStats();
+      printf("-------------------------------------------\n");
+    }
+
   } 
   if( run ) {
     // Peforms transactions
@@ -154,6 +161,13 @@ int main( const int argc, const char *argv[]) {
     if ( temp_cnt[ycsbc::SCAN] )            printf("scan ops  :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", temp_cnt[ycsbc::SCAN], 1.0 * temp_time[ycsbc::SCAN]*1e-6, 1.0 * temp_cnt[ycsbc::SCAN] * 1e6 / temp_time[ycsbc::SCAN], 1.0 * temp_time[ycsbc::SCAN] / temp_cnt[ycsbc::SCAN]);
     if ( temp_cnt[ycsbc::READMODIFYWRITE] ) printf("rmw ops   :%7lu  use time:%7.3f s  IOPS:%7.2f iops (%.2f us/op)\n", temp_cnt[ycsbc::READMODIFYWRITE], 1.0 * temp_time[ycsbc::READMODIFYWRITE]*1e-6, 1.0 * temp_cnt[ycsbc::READMODIFYWRITE] * 1e6 / temp_time[ycsbc::READMODIFYWRITE], 1.0 * temp_time[ycsbc::READMODIFYWRITE] / temp_cnt[ycsbc::READMODIFYWRITE]);
     printf("********************************\n");
+
+    if ( print_stats ) {
+      printf("-------------- db statistics --------------\n");
+      db->PrintStats();
+      printf("-------------------------------------------\n");
+    }
+    
   }
   if( !morerun.empty() ) {
     vector<string> runfilenames;
@@ -231,11 +245,11 @@ int main( const int argc, const char *argv[]) {
     }
     
   }
-  if ( print_stats ) {
-    printf("-------------- db statistics --------------\n");
-    db->PrintStats();
-    printf("-------------------------------------------\n");
-  }
+  // if ( print_stats ) {
+  //   printf("-------------- db statistics --------------\n");
+  //   db->PrintStats();
+  //   printf("-------------------------------------------\n");
+  // }
   if ( wait_for_balance ) {
     uint64_t sleep_time = 0;
     while(!db->HaveBalancedDistribution()){
