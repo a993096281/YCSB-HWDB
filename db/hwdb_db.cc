@@ -172,7 +172,7 @@ namespace ycsbc {
             printf("put field:key:%lu-%s value:%lu-%s\n",kv.first.size(),kv.first.data(),kv.second.size(),kv.second.data());
         } */
         s = db_->interface.Putkv(db_->db, Data_S(key).raw_data(), Data_S(value).raw_data());
-        printf("put:key:%lu-%s\n",key.size(),key.c_str());
+        //printf("put:key:%lu-%s\n",key.size(),key.c_str());
         if(s != 0){
             cerr<<"insert error\n"<<endl;
             exit(0);
